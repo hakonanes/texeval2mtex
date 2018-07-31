@@ -1,5 +1,6 @@
 # TexEval to MTEX
----
+
+Scripts enabling TexEval pole figure intensities to be analysed in MTEX.
 
 ## Contents
 
@@ -7,10 +8,10 @@
 
 Python script to write pole figure intensities from a TexEval RES-file into MTEX-ready DAT-files.
 
-To use, install necessary libraries from `requirements.txt`, then enter
+To use, install necessary libraries from `requirements.txt`, then enter e.g.
 
 ```bash
-$ python texeval2mtex example_data/polefigure_intensities.res 4
+$ python texeval2mtex.py example_data/polefigure_intensities.res 4
 ```
 
 ### requirements.txt
