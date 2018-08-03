@@ -132,7 +132,7 @@ def get_intensities(n_pfs, pfs_df, step_polar, step_azimuthal, step=8,
 def write_intensities_to_file(pfs_ints, pfs_df, infile, step_polar,
                               step_azimuthal, corr_data=True):
     """Write the values of either the uncorrected or corrected intensities to
-    files.
+    file.
 
     Parameters
     ----------

@@ -14,6 +14,8 @@ To use, install necessary libraries from `requirements.txt`, then enter e.g.
 $ python texeval2mtex.py example_data/polefigure_intensities.res 4
 ```
 
+The last argument, 4, specifies the number of pole figures in the RES-file.
+
 ### requirements.txt
 
 Necessary Python libraries. Install into current Conda environment manually, or otherwise using
@@ -24,4 +26,4 @@ $ pip install -r requirements.txt
 
 ### texeval2mtex.m
 
-Matlab script to create a MTEX PoleFigure object from four pole figures by using loadPoleFigure_generic, and then calculate the ODF, plot intensities along fibres (beta and Cube-Goss) and calculate volume fractions.
+Matlab script to create a MTEX PoleFigure object from four (or three, five, etc.) pole figures by using loadPoleFigure_generic, and then calculate the ODF, plot intensities along fibres (beta and Cube-Goss) and calculate volume fractions.

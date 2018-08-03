@@ -27,15 +27,15 @@ fnames = {
     [path fnamesPrefix '_pf220_uncorr.dat'],...
     [path fnamesPrefix '_pf311_uncorr.dat']};
 
-% specimen symmetry
-ss = specimenSymmetry('1');
+% Specimen symmetry
+ss = specimenSymmetry('1'); % Triclinic
 ssO = specimenSymmetry('orthorhombic');
 
-% plotting convention
+% Plotting convention
 setMTEXpref('xAxisDirection','north');
 setMTEXpref('zAxisDirection','outOfPlane');
 
-% set annotations to highlight spatial reference frame
+% Set annotations to highlight spatial reference frame
 pfAnnotations = @(varargin) text([vector3d.X,vector3d.Y],...
     {'RD','TD'},'BackgroundColor','w','tag','axesLabels',varargin{:});
 setMTEXpref('pfAnnotations',pfAnnotations);
@@ -46,14 +46,14 @@ h = {
     Miller(2,2,0,cs),...
     Miller(3,1,1,cs)};
 
-% load pole figures separately
+% Load pole figures separately
 columnNames = {'Polar Angle','Azimuth Angle','Intensity'};
 pf1 = loadPoleFigure_generic(fnames{1},'ColumnNames',columnNames);
 pf2 = loadPoleFigure_generic(fnames{2},'ColumnNames',columnNames);
 pf3 = loadPoleFigure_generic(fnames{3},'ColumnNames',columnNames);
 pf4 = loadPoleFigure_generic(fnames{4},'ColumnNames',columnNames);
 
-% construct pole figure object of the four pole figures
+% Construct pole figure object of the four pole figures
 intensities = {
     pf1.intensities,...
     pf2.intensities,...
@@ -66,15 +66,15 @@ figure
 plot(pfs,'upper','projection','eangle','minmax')
 mtexColorbar('location','southOutside')
 
-%% Calculate and plot ODF in PFs
+%% Calculate the ODF using default settings
 calcODF(pfs)
 
-% calculate texture index and entropy
+% Calculate texture index and entropy
 odf.SS = ssO;
 textureIndex = odf.textureindex
 entropy = odf.entropy
 
-%% ODF in 111 PF with specified contour levels
+%% ODF in {111} PF with specified contour levels
 levelsPF = [0,1,2,3,4,5];
 
 odf.SS = ss;
@@ -105,7 +105,7 @@ s = orientation('Euler',59*degree,37*degree,63*degree,cs,ssO);
 
 spread = 10*degree;
 
-%% Plot intensity along beta fibre from Cu to Brass
+%% Plot intensity along beta fibre from Cu to Brass and write results to file
 odf.SS = ssO;
 f = fibre(cu,br,cs,ssO);
 
@@ -126,12 +126,23 @@ xlabel('\phi_2 \rightarrow','interpreter','tex')
 ylabel('Orientation density f(g)','interpreter','tex')
 xlim([45 90])
 
+% Write fibre data to a csv file for further analysis
+datafname = [path 'data_fibre_beta.csv'];
+
+% Write header to file
+fid = fopen(datafname,'w');
+fprintf(fid,'%s\r\n',['phi1,Phi,phi2,fibreValue']);
+fclose(fid);
+
+dlmwrite(datafname,[(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
+    (evalOris.phi2/degree)' evalValues'],'-append')
+
 %% Plot intensity along fibre from Cube to Goss
 cube = orientation('Euler',0,0,0,cs,ssO);
 goss = orientation('Euler',0,45*degree,0,cs,ssO);
 f = fibre(cube,goss,cs,ssO);
 
-% generate list from fibres and evalute ODF at specific orientations
+% Generate list from fibres and evalute ODF at specific orientations
 fibreOris = f.orientation;
 evalOris = [];
 evalIndex = [1 111 222 333 444 555 666 777 888 1000];
@@ -147,6 +158,17 @@ plot(evalOris.Phi/degree,evalValues,'-o')
 xlabel('\Phi \rightarrow','interpreter','tex')
 ylabel('Orientation density f(g)','interpreter','tex')
 xlim([0 45])
+
+% Write fibre data to a csv file for further analysis
+datafname = [path 'data_fibre_cube_goss.csv'];
+
+% Write header to file
+fid = fopen(datafname,'w');
+fprintf(fid,'%s\r\n',['phi1,Phi,phi2,fibreValue']);
+fclose(fid);
+
+dlmwrite(datafname,[(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
+    (evalOris.phi2/degree)' evalValues'],'-append')
 
 %% Calculate volume fractions Mi
 Mbr = volume(odf,br,spread)
