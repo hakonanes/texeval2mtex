@@ -134,10 +134,11 @@ fid = fopen(datafname,'w');
 fprintf(fid,'%s\r\n',['phi1,Phi,phi2,fibreValue']);
 fclose(fid);
 
+% Write Euler angles and intensities to file
 dlmwrite(datafname,[(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
     (evalOris.phi2/degree)' evalValues'],'-append')
 
-%% Plot intensity along fibre from Cube to Goss
+%% Plot intensity along fibre from Cube to Goss and write results to file
 cube = orientation('Euler',0,0,0,cs,ssO);
 goss = orientation('Euler',0,45*degree,0,cs,ssO);
 f = fibre(cube,goss,cs,ssO);
@@ -167,6 +168,7 @@ fid = fopen(datafname,'w');
 fprintf(fid,'%s\r\n',['phi1,Phi,phi2,fibreValue']);
 fclose(fid);
 
+% Write Euler angles and intensities to file
 dlmwrite(datafname,[(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
     (evalOris.phi2/degree)' evalValues'],'-append')
 

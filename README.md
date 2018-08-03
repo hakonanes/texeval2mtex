@@ -27,3 +27,9 @@ $ pip install -r requirements.txt
 ### texeval2mtex.m
 
 Matlab script to create a MTEX PoleFigure object from four (or three, five, etc.) pole figures by using loadPoleFigure_generic, and then calculate the ODF, plot intensities along fibres (beta and Cube-Goss) and calculate volume fractions.
+
+For writing of figures created by MTEX to disk, the function `export_fig`, created by Yair Altman available here [export_fig - File Exchange](https://se.mathworks.com/matlabcentral/fileexchange/23629-export_fig), is recommended. After the plotting lines for a specific figure, or in the command window when the specific figure is selected, enter e.g. (for 100 dpi resolution)
+
+```matlab
+export_fig([path 'odf_fibre_cube_goss.png'],'-r100')
+```
