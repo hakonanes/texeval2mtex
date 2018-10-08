@@ -67,12 +67,15 @@ plot(pfs,'upper','projection','eangle','minmax')
 mtexColorbar('location','southOutside')
 
 %% Calculate the ODF using default settings
-calcODF(pfs)
+odf = calcODF(pfs)
 
-% Calculate texture index and entropy
+% Set correct specimen symmetry for calculation of texture strength
 odf.SS = ssO;
+
+% Calculate texture strength
 textureIndex = odf.textureindex
 entropy = odf.entropy
+odfMax = odf.max
 
 %% ODF in {111} PF with specified contour levels
 levelsPF = [0,1,2,3,4,5];
@@ -92,6 +95,13 @@ plot(odf,'phi2',[0 45 65]*degree,'contourf',levelsODF,'minmax')
 figure
 plot(odf,'sections',18,'contourf',levelsODF)
 
+%% Plot inverse pole figure
+figure
+plotIPDF(odf,[xvector,yvector,zvector],'contourf','minmax') % contoured
+%plotIPDF(odf,[xvector,yvector,zvector]) % continuous
+mtexColorMap WhiteJet % or e.g. white2black
+mtexColorbar
+
 %% Define ideal texture components and spread acceptance angle
 br = orientation('Euler',35*degree,45*degree,90*degree,cs,ssO);
 cu = orientation('Euler',90*degree,35*degree,45*degree,cs,ssO);
@@ -104,6 +114,17 @@ q = orientation('Miller',[0 1 3],[2 3 1],cs,ssO);
 s = orientation('Euler',59*degree,37*degree,63*degree,cs,ssO);
 
 spread = 10*degree;
+
+%% Calculate volume fractions Mi
+Mbr = volume(odf,br,spread)
+Mcu = volume(odf,cu,spread)
+Mcube = volume(odf,cube,spread)
+McubeND22 = volume(odf,cubeND22,spread)
+McubeND45 = volume(odf,cubeND45,spread)
+Mgoss = volume(odf,goss,spread)
+Mp = volume(odf,p,spread)
+Mq = volume(odf,q,spread)
+Ms = volume(odf,s,spread)
 
 %% Plot intensity along beta fibre from Cu to Brass and write results to file
 odf.SS = ssO;
@@ -171,14 +192,3 @@ fclose(fid);
 % Write Euler angles and intensities to file
 dlmwrite(datafname,[(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
     (evalOris.phi2/degree)' evalValues'],'-append')
-
-%% Calculate volume fractions Mi
-Mbr = volume(odf,br,spread)
-Mcu = volume(odf,cu,spread)
-Mcube = volume(odf,cube,spread)
-McubeND22 = volume(odf,cubeND22,spread)
-McubeND45 = volume(odf,cubeND45,spread)
-Mgoss = volume(odf,goss,spread)
-Mp = volume(odf,p,spread)
-Mq = volume(odf,q,spread)
-Ms = volume(odf,s,spread)
