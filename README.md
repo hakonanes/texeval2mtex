@@ -18,10 +18,16 @@ The last argument, 4, specifies the number of pole figures in the RES-file.
 
 ### requirements.txt
 
-Necessary Python libraries. Install into current Conda environment manually, or otherwise using
+Necessary Python libraries. Install into a `virtualenv` using pip
 
 ```bash
 $ pip install -r requirements.txt
+```
+
+or into a Conda environment using
+
+```bash
+$ conda install --yes --file requirements.txt
 ```
 
 ### texeval2mtex.m
