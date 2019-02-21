@@ -16,6 +16,8 @@ $ python texeval2mtex.py example_data/polefigure_intensities.res 4
 
 The last argument, 4, specifies the number of pole figures in the RES-file.
 
+The script outputs as many `*_corr.dat` (raw pole figure data corrected for defocusing) and `*_uncorr.dat` (from ODF values after defocusing correction) files as input pole figures.
+
 ### requirements.txt
 
 Necessary Python libraries. Install into a `virtualenv` using pip
