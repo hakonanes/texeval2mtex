@@ -41,3 +41,5 @@ For writing of figures created by MTEX to disk, the function `export_fig`, creat
 ```matlab
 export_fig([path 'odf_fibre_cube_goss.png'],'-r100')
 ```
+
+Uses functions implemented in MTEX 5.2.beta2.
