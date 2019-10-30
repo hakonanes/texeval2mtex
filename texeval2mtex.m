@@ -1,16 +1,12 @@
 %% TexEval to MTEX
-% Created on Jul 31 2018
-% Updated on April 24 2019
+% Created on Jul 31 2018 by Håkon Wiik Ånes (hakon.w.anes@ntnu.no)
+% Updated on October 30 2019
 %
 % Create a MTEX PoleFigure object from four pole figures by using
 % loadPoleFigure_generic,  and
 %   1. calculate the ODF
 %   2. plot intensities along fibres (beta, Cube-Goss)
 %   3. calculate volume fractions
-%
-% E: hakon.w.anes@ntnu.no
-% T: @hakonanes
-% W: https://www.ntnu.edu/employees/hakon.w.anes
 %
 % Working with:
 %   MATLAB > R2018a
@@ -19,14 +15,14 @@
 %% Import pole figure data and create PoleFigure object
 cs = crystalSymmetry('m-3m', [4.04 4.04 4.04], 'mineral', 'Al');
 
-path = ['path/to/files/'];
-fnamesPrefix = '3000_1.9mm_330C_1_R';
+path = 'path/to/files/';
+fnamesPrefix = 'my_sample_R';
 
 fnames = {
-    [path fnamesPrefix '_pf111_uncorr.dat'],...
-    [path fnamesPrefix '_pf200_uncorr.dat'],...
-    [path fnamesPrefix '_pf220_uncorr.dat'],...
-    [path fnamesPrefix '_pf311_uncorr.dat']};
+    fullfile(path, [fnamesPrefix '_pf111_uncorr.dat']),...
+    fullfile(path, [fnamesPrefix '_pf200_uncorr.dat']),...
+    fullfile(path, [fnamesPrefix '_pf220_uncorr.dat']),...
+    fullfile(path, [fnamesPrefix '_pf311_uncorr.dat'])};
 
 % Specimen symmetry
 ss = specimenSymmetry('1'); % Triclinic
@@ -86,15 +82,46 @@ figure
 plotPDF(odf, h, 'upper', 'projection', 'eangle', 'contourf', levelsPF)
 mtexColorbar
 
+%% Define ideal texture components and spread acceptance angle
+br = orientation.byEuler(35*degree, 45*degree, 90*degree, cs, ssO);
+cu = orientation.byEuler(90*degree, 35*degree, 45*degree, cs, ssO);
+cube = orientation.byEuler(0, 0, 0, cs, ssO);
+cubeND = orientation.byMiller([0 0 1], [3 1 0], cs, ssO);
+cubeND45 = orientation.byEuler(45*degree, 0, 0, cs, ssO);
+goss = orientation.byEuler(0, 45*degree, 0, cs, ssO);
+p = orientation.byMiller([0 1 1], [1 2 2], cs, ssO);
+q = orientation.byMiller([0 1 3], [2 3 1], cs, ssO);
+s = orientation.byEuler(59*degree, 37*degree, 63*degree, cs, ssO);
+
 %% Plot ODF in Euler space phi2 sections
 levelsODF = [0, 1, 2, 3, 4, 8, 12];
 
 odf.SS = ssO;
 figure
 plot(odf, 'phi2', [0 45 65]*degree, 'contourf', levelsODF, 'minmax')
+mtexColorbar
+hold on
+annotate(br.symmetrise, 'marker', 'd', 'markerfacecolor', 'g')
+annotate(cu.symmetrise, 'marker', '^', 'markerfacecolor', 'b')
+annotate(cube.symmetrise, 'marker', 's', 'markerfacecolor', 'r')
+annotate(cubeND.symmetrise, 'marker', 's', 'markerfacecolor', 'r')
+annotate(goss.symmetrise, 'marker', 'o', 'markerfacecolor', 'y')
+annotate(q.symmetrise, 'marker', '>', 'markerfacecolor', 'c')
+annotate(s.symmetrise, 'marker', 'p', 'markerfacecolor', 'm')
+hold off
 
 figure
 plot(odf, 'sections', 18, 'contourf', levelsODF)
+mtexColorbar
+hold on
+annotate(br.symmetrise, 'marker', 'd', 'markerfacecolor', 'g')
+annotate(cu.symmetrise, 'marker', '^', 'markerfacecolor', 'b')
+annotate(cube.symmetrise, 'marker', 's', 'markerfacecolor', 'r')
+annotate(cubeND.symmetrise, 'marker', 's', 'markerfacecolor', 'r')
+annotate(goss.symmetrise, 'marker', 'o', 'markerfacecolor', 'y')
+annotate(q.symmetrise, 'marker', '>', 'markerfacecolor', 'c')
+annotate(s.symmetrise, 'marker', 'p', 'markerfacecolor', 'm')
+hold off
 
 %% Plot inverse pole figure
 figure
@@ -103,24 +130,13 @@ plotIPDF(odf, [xvector, yvector, zvector], 'contourf', 'minmax') % contoured
 mtexColorMap WhiteJet % or e.g. white2black
 mtexColorbar
 
-%% Define ideal texture components and spread acceptance angle
-br = orientation.byEuler(35*degree, 45*degree, 90*degree, cs, ssO);
-cu = orientation.byEuler(90*degree, 35*degree, 45*degree, cs, ssO);
-cube = orientation.byMiller([1 0 0], [0 0 1], cs, ssO);
-cubeND22 = orientation.byEuler(22*degree, 0, 0, cs, ssO);
-cubeND45 = orientation.byMiller([1 0 0], [0 1 1], cs, ssO);
-goss = orientation.byMiller([1 1 0], [0 0 1], cs, ssO);
-p = orientation.byMiller([0 1 1], [1 2 2], cs, ssO);
-q = orientation.byMiller([0 1 3], [2 3 1], cs, ssO);
-s = orientation.byEuler(59*degree, 37*degree, 63*degree, cs, ssO);
-
+%% Calculate volume fractions Mi
 spread = 10*degree;
 
-%% Calculate volume fractions Mi
 Mbr = volume(odf, br, spread)
 Mcu = volume(odf, cu, spread)
 Mcube = volume(odf, cube, spread)
-McubeND22 = volume(odf, cubeND22, spread)
+McubeND = volume(odf, cubeND22, spread)
 McubeND45 = volume(odf, cubeND45, spread)
 Mgoss = volume(odf, goss, spread)
 Mp = volume(odf, p, spread)
@@ -149,11 +165,11 @@ ylabel('Orientation density f(g)', 'interpreter', 'tex')
 xlim([45 90])
 
 % Write fibre data to a csv file for further analysis
-datafname = [path 'data_fibre_beta.csv'];
+datafname = fullfile(path, 'data_fibre_beta.csv');
 
 % Write header to file
 fid = fopen(datafname, 'w');
-fprintf(fid, '%s\r\n', ['phi1, Phi, phi2, fibreValue']);
+fprintf(fid, '%s\r\n', 'phi1,Phi,phi2,fibreValue');
 fclose(fid);
 
 % Write Euler angles and intensities to file
@@ -161,8 +177,7 @@ dlmwrite(datafname, [(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
     (evalOris.phi2/degree)' evalValues'], '-append')
 
 %% Plot intensity along fibre from Cube to Goss and write results to file
-cube = orientation.byEuler(0, 0, 0, cs, ssO);
-goss = orientation.byEuler(0, 45*degree, 0, cs, ssO);
+odf.SS = ssO;
 f = fibre(cube, goss, cs, ssO);
 
 % Generate list from fibres and evalute ODF at specific orientations
@@ -183,13 +198,44 @@ ylabel('Orientation density f(g)', 'interpreter', 'tex')
 xlim([0 45])
 
 % Write fibre data to a csv file for further analysis
-datafname = [path 'data_fibre_cube_goss.csv'];
+datafname = fullfile(path, 'data_fibre_cube_goss.csv');
 
 % Write header to file
 fid = fopen(datafname, 'w');
-fprintf(fid, '%s\r\n', ['phi1, Phi, phi2, fibreValue']);
+fprintf(fid, '%s\r\n', 'phi1,Phi,phi2,fibreValue');
 fclose(fid);
 
 % Write Euler angles and intensities to file
+dlmwrite(datafname, [(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
+    (evalOris.phi2/degree)' evalValues'], '-append')
+
+%% Plot intensity along fibre from Cube to ND-rotated Cube
+odf.SS = ssO;
+f = fibre(cube, cubeND45, cs, ssO);
+
+% Generate list from fibres and evalute ODF at specific orientations
+fibreOris = f.orientation;
+evalOris = [];
+evalIndex = [1 111 222 333 444 555 666 777 888 1000];
+evalValues = zeros(1,10);
+for i=1:10
+    ori = fibreOris(evalIndex(i));
+    evalOris = [evalOris ori];
+    evalValues(i) = eval(odf, ori);
+end
+
+figure
+plot(evalOris.phi1/degree, evalValues, '-o')
+xlabel('\phi_1 \rightarrow', 'interpreter', 'tex')
+ylabel('Orientation density f(g)', 'interpreter', 'tex')
+xlim([0 45])
+
+% Write fibre data to csv file for further analysis in Python
+datafname = fullfile(path, 'data_fibre_cube_cubeND45.csv');
+
+fid = fopen(datafname, 'w');
+fprintf(fid, '%s\r\n', 'phi1,Phi,phi2,fibreValue');
+fclose(fid);
+
 dlmwrite(datafname, [(evalOris.phi1/degree)' (evalOris.Phi/degree)'...
     (evalOris.phi2/degree)' evalValues'], '-append')
