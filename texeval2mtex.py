@@ -154,7 +154,7 @@ def write_intensities_to_file(pfs_ints, pfs_df, infile, step_polar,
     azimuthal = np.copy(polar)
 
     for j in range(polar_max):
-        polar[j] = (j + 1) * step_polar
+        polar[j] = j * step_polar
         k = 0
         for l in range(azimuthal_max):
             azimuthal[j, l] = k
